@@ -1,3 +1,4 @@
+
 pragma ComponentBehavior: Bound
 import qs
 import qs.services
@@ -197,6 +198,8 @@ Item {
                     windowData: windowByAddress[address]
 
                     property bool atInitPosition: (initX == x && initY == y)
+                    property real dragStartX: 0
+                    property real dragStartY: 0
 
                     // Offset on the canvas
                     property int workspaceColIndex: getWsColumn(windowData?.workspace.id)
@@ -254,11 +257,14 @@ Item {
                         onPressed: (mouse) => {
                             root.draggingFromWorkspace = windowData?.workspace.id
                             window.pressed = true
+                            window.dragStartX = window.x
+                            window.dragStartY = window.y
+                            window.x = window.x
+                            window.y = window.y
                             window.Drag.active = true
                             window.Drag.source = window
                             window.Drag.hotSpot.x = mouse.x
                             window.Drag.hotSpot.y = mouse.y
-                            // console.log(`[OverviewWindow] Dragging window ${windowData?.address} from position (${window.x}, ${window.y})`)
                         }
                         onReleased: {
                             const targetWorkspace = root.draggingTargetWorkspace
@@ -266,7 +272,28 @@ Item {
                             window.Drag.active = false
                             root.draggingFromWorkspace = -1
                             if (targetWorkspace !== -1 && targetWorkspace !== windowData?.workspace.id) {
-                                Hyprland.dispatch(`hl.dsp.window.move({ workspace = ${targetWorkspace}, follow = false, window = "address:${window.windowData?.address}" })`)
+                                if (!window.windowData.floating) {
+                                    Hyprland.dispatch(`hl.dsp.window.move({ workspace = ${targetWorkspace}, follow = false, window = "address:${window.windowData?.address}" })`)
+                                    // Animate non-float to center of target workspace cell
+                                    const targetColIndex = getWsColumn(targetWorkspace)
+                                    const targetRowIndex = getWsRow(targetWorkspace)
+                                    const targetXOffset = (root.workspaceImplicitWidth + workspaceSpacing) * targetColIndex
+                                    const targetYOffset = (root.workspaceImplicitHeight + workspaceSpacing) * targetRowIndex
+                                    window.x = targetXOffset + (root.workspaceImplicitWidth - window.width) / 2
+                                    window.y = targetYOffset + (root.workspaceImplicitHeight - window.height) / 2
+                                } else {
+                                    // Float: keep consistent screen position across workspaces
+                                    Hyprland.dispatch(`hl.dsp.window.move({ workspace = ${targetWorkspace}, follow = false, window = "address:${window.windowData?.address}" })`)
+                                    // Use captured dragStart position (most accurate) instead of initX (may be stale)
+                                    const percentageX = (window.dragStartX - xOffset) / root.workspaceImplicitWidth
+                                    const percentageY = (window.dragStartY - yOffset) / root.workspaceImplicitHeight
+                                    const targetColIndex = getWsColumn(targetWorkspace)
+                                    const targetRowIndex = getWsRow(targetWorkspace)
+                                    const targetXOffset = (root.workspaceImplicitWidth + workspaceSpacing) * targetColIndex
+                                    const targetYOffset = (root.workspaceImplicitHeight + workspaceSpacing) * targetRowIndex
+                                    window.x = targetXOffset + percentageX * root.workspaceImplicitWidth
+                                    window.y = targetYOffset + percentageY * root.workspaceImplicitHeight
+                                }
                             }
                             else {
                                 if (!window.windowData.floating) {
