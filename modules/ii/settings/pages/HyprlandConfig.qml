@@ -678,9 +678,14 @@ ContentPage {
                         Config.options.hyprland.general.borderColor.enable = checked
                     }
                 }
+            }
+
+            // These rows live in their own group: GroupedList wraps each child in
+            // a sized container, so hiding a child would still leave its gap.
+            GroupedList {
+                visible: Config.options.hyprland.general.borderColor.enable
 
                 BorderColorRow {
-                    visible: Config.options.hyprland.general.borderColor.enable
                     label: Translation.tr("Active border")
                     roleValue: Config.options.hyprland.general.borderColor.activeRole
                     customHex: Config.options.hyprland.general.borderColor.activeCustom
@@ -697,7 +702,6 @@ ContentPage {
                 }
 
                 BorderColorRow {
-                    visible: Config.options.hyprland.general.borderColor.enable
                     label: Translation.tr("Inactive border")
                     roleValue: Config.options.hyprland.general.borderColor.inactiveRole
                     customHex: Config.options.hyprland.general.borderColor.inactiveCustom
@@ -712,7 +716,9 @@ ContentPage {
                         Config.options.hyprland.general.borderColor.inactiveOpacity = newAlpha
                     }
                 }
+            }
 
+            GroupedList {
                 ConfigSpinBox {
                     icon: "margin"
                     text: Translation.tr("Gaps In")
