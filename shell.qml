@@ -42,6 +42,7 @@ ShellRoot {
 
     Component.onCompleted: {
         MaterialThemeLoader.reapplyTheme()
+        HyprlandBorderColors.load()
         Hyprsunset.load()
         FirstRunExperience.load()
         ConflictKiller.load()
