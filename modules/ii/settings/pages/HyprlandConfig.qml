@@ -38,7 +38,9 @@ ContentPage {
 
     Component.onCompleted: {
         const h = Config.options.hyprland
-        HyprlandConfig.setMany({
+        // One setMany for everything: separate calls would be separate
+        // processes racing to rewrite the same overrides file.
+        HyprlandConfig.setMany(Object.assign({
             "decoration:rounding":                  h.decoration.rounding,
             "decoration:blur:enabled":              h.decoration.blur.enabled ? 1 : 0,
             "decoration:blur:size":                 h.decoration.blur.size,
@@ -59,106 +61,12 @@ ContentPage {
             "input:touchpad:disable_while_typing":  h.input.touchpad.disableWhileTyping ? 1 : 0,
             "input:touchpad:clickfinger_behavior":  h.input.touchpad.clickfingerBehavior ? 1 : 0,
             "input:touchpad:scroll_factor":         h.input.touchpad.scrollFactor
-        })
+        }, HyprlandConfig.borderColorEntries()))
     }
     MonitorConfigOption { id: monitorConfig }
 
-    // One row of the window border color settings, used for both the active
-    // and the inactive border. Emits instead of writing to Config directly so
-    // the two instances stay interchangeable.
-    component BorderColorRow: ColumnLayout {
-        id: borderRow
-        required property string label
-        required property string roleValue
-        required property string customHex
-        required property real alphaValue
-        signal roleSelected(string newValue)
-        signal hexEdited(string newHex)
-        signal alphaEdited(real newAlpha)
-
-        readonly property var roleNames: ({
-            "outlineVariant":       Translation.tr("Outline variant"),
-            "outline":              Translation.tr("Outline"),
-            "primary":              Translation.tr("Primary"),
-            "secondary":            Translation.tr("Secondary"),
-            "tertiary":             Translation.tr("Tertiary"),
-            "primaryContainer":     Translation.tr("Primary container"),
-            "secondaryContainer":   Translation.tr("Secondary container"),
-            "tertiaryContainer":    Translation.tr("Tertiary container"),
-            "surfaceContainerLow":  Translation.tr("Surface container low"),
-            "surfaceContainerHigh": Translation.tr("Surface container high"),
-            "onSurface":            Translation.tr("On surface"),
-            "error":                Translation.tr("Error")
-        })
-
-        Layout.fillWidth: true
-        Layout.leftMargin: 8
-        Layout.rightMargin: 8
-        spacing: 6
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-            MaterialSymbol {
-                text: "border_color"
-                iconSize: Appearance.font.pixelSize.normal + 5
-                color: Appearance.colors.colOnLayer0
-            }
-            StyledText {
-                text: borderRow.label
-                color: Appearance.colors.colOnLayer0
-            }
-            Item { Layout.fillWidth: true }
-        }
-
-        CustomColorSelectionArray {
-            currentValue: borderRow.roleValue
-            swatchSize: 32
-            options: {
-                let out = []
-                const roles = HyprlandBorderColors.roles
-                for (let i = 0; i < roles.length; i++) {
-                    const role = roles[i]
-                    out.push({
-                        value: role,
-                        displayName: borderRow.roleNames[role] ?? role,
-                        // Same source the service writes out, so the swatch
-                        // shows exactly what the border will be.
-                        color: String(HyprlandBorderColors.resolve(role, ""))
-                    })
-                }
-                const validHex = HyprlandBorderColors.isValidHex(borderRow.customHex)
-                out.push({
-                    value: "custom",
-                    displayName: Translation.tr("Custom"),
-                    color: validHex ? borderRow.customHex : "transparent",
-                    rainbow: !validHex,
-                    icon: validHex ? "" : "edit"
-                })
-                return out
-            }
-            onSelected: newValue => borderRow.roleSelected(newValue)
-        }
-
-        MaterialTextField {
-            visible: borderRow.roleValue === "custom"
-            Layout.preferredWidth: 160
-            text: borderRow.customHex
-            placeholderText: "#RRGGBB"
-            onEditingFinished: borderRow.hexEdited(text)
-        }
-
-        ConfigSpinBox {
-            icon: "opacity"
-            text: Translation.tr("Opacity (%)")
-            value: Math.round(borderRow.alphaValue * 100)
-            from: 0; to: 100; stepSize: 5
-            onValueChanged: {
-                if (value === Math.round(borderRow.alphaValue * 100)) return
-                borderRow.alphaEdited(value / 100)
-            }
-        }
-    }
+    // Same roles as the settings panel border color on the Interface page.
+    readonly property var borderColorRoles: ["primary", "secondary", "tertiary", "primaryContainer", "secondaryContainer", "tertiaryContainer", "layer0Border"]
 
     ColumnLayout {
         id: mainLayout
@@ -676,6 +584,8 @@ ContentPage {
                     onCheckedChanged: {
                         if (checked === Config.options.hyprland.general.borderColor.enable) return
                         Config.options.hyprland.general.borderColor.enable = checked
+                        if (checked) HyprlandConfig.applyBorderColors()
+                        else HyprlandConfig.resetBorderColors()
                     }
                 }
             }
@@ -685,35 +595,51 @@ ContentPage {
             GroupedList {
                 visible: Config.options.hyprland.general.borderColor.enable
 
-                BorderColorRow {
-                    label: Translation.tr("Active border")
-                    roleValue: Config.options.hyprland.general.borderColor.activeRole
-                    customHex: Config.options.hyprland.general.borderColor.activeCustom
-                    alphaValue: Config.options.hyprland.general.borderColor.activeOpacity
-                    onRoleSelected: newValue => {
+                ColorSelectionArray {
+                    icon: "border_color"
+                    text: Translation.tr("Active border")
+                    options: page.borderColorRoles
+                    currentValue: Config.options.hyprland.general.borderColor.activeRole
+                    onSelected: newValue => {
                         Config.options.hyprland.general.borderColor.activeRole = newValue
-                    }
-                    onHexEdited: newHex => {
-                        Config.options.hyprland.general.borderColor.activeCustom = newHex
-                    }
-                    onAlphaEdited: newAlpha => {
-                        Config.options.hyprland.general.borderColor.activeOpacity = newAlpha
+                        HyprlandConfig.applyBorderColors()
                     }
                 }
 
-                BorderColorRow {
-                    label: Translation.tr("Inactive border")
-                    roleValue: Config.options.hyprland.general.borderColor.inactiveRole
-                    customHex: Config.options.hyprland.general.borderColor.inactiveCustom
-                    alphaValue: Config.options.hyprland.general.borderColor.inactiveOpacity
-                    onRoleSelected: newValue => {
+                ConfigSpinBox {
+                    icon: "opacity"
+                    text: Translation.tr("Active border opacity")
+                    value: Math.round(Config.options.hyprland.general.borderColor.activeOpacity * 100)
+                    from: 0; to: 100; stepSize: 5
+                    onValueChanged: {
+                        // Compared as integers: the spin box only holds whole percents.
+                        if (value === Math.round(Config.options.hyprland.general.borderColor.activeOpacity * 100)) return
+                        Config.options.hyprland.general.borderColor.activeOpacity = value / 100.0
+                        HyprlandConfig.applyBorderColors()
+                    }
+                }
+
+                ColorSelectionArray {
+                    icon: "border_color"
+                    text: Translation.tr("Inactive border")
+                    options: page.borderColorRoles
+                    currentValue: Config.options.hyprland.general.borderColor.inactiveRole
+                    onSelected: newValue => {
                         Config.options.hyprland.general.borderColor.inactiveRole = newValue
+                        HyprlandConfig.applyBorderColors()
                     }
-                    onHexEdited: newHex => {
-                        Config.options.hyprland.general.borderColor.inactiveCustom = newHex
-                    }
-                    onAlphaEdited: newAlpha => {
-                        Config.options.hyprland.general.borderColor.inactiveOpacity = newAlpha
+                }
+
+                ConfigSpinBox {
+                    icon: "opacity"
+                    text: Translation.tr("Inactive border opacity")
+                    value: Math.round(Config.options.hyprland.general.borderColor.inactiveOpacity * 100)
+                    from: 0; to: 100; stepSize: 5
+                    onValueChanged: {
+                        // Compared as integers: the spin box only holds whole percents.
+                        if (value === Math.round(Config.options.hyprland.general.borderColor.inactiveOpacity * 100)) return
+                        Config.options.hyprland.general.borderColor.inactiveOpacity = value / 100.0
+                        HyprlandConfig.applyBorderColors()
                     }
                 }
             }
