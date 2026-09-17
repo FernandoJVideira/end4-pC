@@ -324,7 +324,7 @@ Variants {
                         id: blurLayer
                         anchors.fill: parent
                         source: bgRoot.wallpaperAnimation === "" || bgRoot.transitionProgress >= 1.0 ? wallpaper : transitionEffect
-                        radius: blurRoot.blurRadius
+                        radius: Config.options.background.blurRadius
 
                         layer.enabled: !bgRoot.blurFullScreen
                         layer.effect: OpacityMask {
