@@ -611,5 +611,17 @@
   "Use varying shapes for password characters": "Utiliser des formes variées pour les caractères du mot de passe",
   "Battery full": "Batterie pleine",
   "Pin": "Épingler",
-  "Unpin": "Désépingler"
+  "Unpin": "Désépingler",
+  "Visualizer": "Visualiseur",
+  "Style": "Style",
+  "Mirror": "Miroir",
+  "Aurora": "Aurore",
+  "Ring": "Anneau",
+  "Drag the ring on your desktop to move it, drag its corner to resize it": "Faites glisser l'anneau sur le bureau pour le déplacer, faites glisser son coin pour changer sa taille",
+  "Colors": "Couleurs",
+  "Theme": "Thème",
+  "Album cover": "Pochette de l'album",
+  "Sensitivity (%)": "Sensibilité (%)",
+  "Height": "Hauteur",
+  "Size": "Taille"
 }
