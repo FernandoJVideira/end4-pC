@@ -294,6 +294,7 @@ Item {
                 anchors.rightMargin: 8
                 anchors.verticalCenter: absoluteCenter.verticalCenter
                 active: Config.options.bar.dynamicIsland.leftWidget !== "none"
+                visible: active && GlobalStates.dynamicIslandEnabled
                 source: active ? root.getWidgetUrl(Config.options.bar.dynamicIsland.leftWidget) : ""
             }
 
@@ -304,6 +305,7 @@ Item {
                 anchors.leftMargin: 8
                 anchors.verticalCenter: absoluteCenter.verticalCenter
                 active: Config.options.bar.dynamicIsland.rightWidget !== "none"
+                visible: active && GlobalStates.dynamicIslandEnabled
                 source: active ? root.getWidgetUrl(Config.options.bar.dynamicIsland.rightWidget) : ""
             }
 
