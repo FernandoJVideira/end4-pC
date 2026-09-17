@@ -14,7 +14,7 @@ AbstractBackgroundWidget {
 
     configEntryName: "visualizer"
 
-    // "bars" is the original Rectangle visualizer, the others are shaders/<style>.frag
+    // "bars" is the original Rectangle visualizer, the others are shaders/<style>.frag.qsb
     readonly property string style: configEntry.style ?? "bars"
     readonly property bool shaderStyle: ["aurora", "ring", "dots", "mirror"].includes(style)
     readonly property bool isRing: style === "ring"

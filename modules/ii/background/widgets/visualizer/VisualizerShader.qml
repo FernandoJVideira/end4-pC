@@ -1,7 +1,7 @@
 import QtQuick
 
 /*
- * One of the GPU visualizer styles (shaders/<style>.frag), fed by a VisualizerEngine.
+ * One of the GPU visualizer styles (shaders/<style>.frag.qsb), fed by a VisualizerEngine.
  * Levels and peaks go to the shader packed four per vector.
  */
 ShaderEffect {
