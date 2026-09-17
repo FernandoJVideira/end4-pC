@@ -450,6 +450,8 @@ Singleton {
                 property JsonObject dynamicIsland: JsonObject {
                     property string visualizerStyle: "dots" // "dots", "wave", "none"
                     property bool showMediaControls: false
+                    property string leftWidget: "none"
+                    property string rightWidget: "none"
                 }
                 property JsonObject divider: JsonObject {
                     property string style: "rect" // rect - dot - space
