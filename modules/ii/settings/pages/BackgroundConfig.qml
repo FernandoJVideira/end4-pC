@@ -978,7 +978,7 @@ ContentPage {
             }
         }
 
-        ContentSection {
+                ContentSection {
             id: settingsVisualizer
             icon: "graphic_eq"
             shape: MaterialShape.Shape.Burst
@@ -997,12 +997,9 @@ ContentPage {
                         settingsVisualizer.entry.enable = checked;
                     }
                 }
-            }
-
-            ContentSubsection {
-                title: Translation.tr("Style")
-
                 ConfigSelectionArray {
+                    text: Translation.tr("Style")
+                    icon: "style"
                     currentValue: settingsVisualizer.entry.style
                     onSelected: newValue => {
                         settingsVisualizer.entry.style = newValue;
@@ -1035,44 +1032,34 @@ ContentPage {
                         }
                     ]
                 }
-            }
 
-            NoticeBox {
-                Layout.fillWidth: true
-                visible: settingsVisualizer.entry.style === "ring"
-                materialIcon: "touch_app"
-                text: Translation.tr("Drag the ring on your desktop to move it, drag its corner to resize it")
-            }
-
-            ConfigSelectionArray {
-                visible: settingsVisualizer.entry.style !== "bars"
-                text: Translation.tr("Colors")
-                icon: "palette"
-                currentValue: settingsVisualizer.entry.colorSource
-                onSelected: newValue => {
-                    settingsVisualizer.entry.colorSource = newValue;
-                }
-                options: [
-                    {
-                        displayName: Translation.tr("Theme"),
-                        icon: "palette",
-                        value: "theme"
-                    },
-                    {
-                        displayName: Translation.tr("Album cover"),
-                        icon: "album",
-                        value: "cover"
+                ConfigSelectionArray {
+                    text: Translation.tr("Colors")
+                    icon: "palette"
+                    enabled: settingsVisualizer.entry.style !== "bars"
+                    currentValue: settingsVisualizer.entry.colorSource
+                    onSelected: newValue => {
+                        settingsVisualizer.entry.colorSource = newValue;
                     }
-                ]
-            }
-
-            GroupedList {
-                visible: settingsVisualizer.entry.style !== "bars"
-
+                    options: [
+                        {
+                            displayName: Translation.tr("Theme"),
+                            icon: "palette",
+                            value: "theme"
+                        },
+                        {
+                            displayName: Translation.tr("Album cover"),
+                            icon: "album",
+                            value: "cover"
+                        }
+                    ]
+                }
+        
                 ConfigSlider {
                     text: Translation.tr("Sensitivity (%)")
                     buttonIcon: "tune"
                     usePercentTooltip: false
+                    enabled: settingsVisualizer.entry.style !== "bars"
                     value: settingsVisualizer.entry.sensitivity * 100
                     from: 50
                     to: 300
@@ -1082,10 +1069,10 @@ ContentPage {
                     }
                 }
                 ConfigSlider {
-                    visible: settingsVisualizer.bandStyle
                     text: Translation.tr("Height")
                     buttonIcon: "height"
                     usePercentTooltip: false
+                    enabled: settingsVisualizer.entry.style !== "bars" && settingsVisualizer.bandStyle
                     value: settingsVisualizer.entry.height
                     from: 120
                     to: 600
@@ -1095,10 +1082,10 @@ ContentPage {
                     }
                 }
                 ConfigSlider {
-                    visible: settingsVisualizer.entry.style === "ring"
                     text: Translation.tr("Size")
                     buttonIcon: "aspect_ratio"
                     usePercentTooltip: false
+                    enabled: settingsVisualizer.entry.style === "ring"
                     value: settingsVisualizer.entry.ringSize
                     from: 200
                     to: 900
@@ -1321,11 +1308,6 @@ ContentPage {
                             enabled: Config.options.background.widgets.resources.enable
                         },
                         {
-                            icon: "graphic_eq",
-                            name: Translation.tr("Visualizer"),
-                            enabled: Config.options.background.widgets.visualizer.enable
-                        },
-                        {
                             icon: "calendar_month",
                             name: Translation.tr("Calendar"),
                             enabled: Config.options.background.widgets.calendar.enable
@@ -1392,8 +1374,6 @@ ContentPage {
                                             Config.options.background.widgets.media.enable = checked
                                         else if (modelData.icon === "memory")
                                             Config.options.background.widgets.resources.enable = checked
-                                        else if (modelData.icon === "graphic_eq")
-                                            Config.options.background.widgets.visualizer.enable = checked
                                         else if (modelData.icon === "calendar_month")
                                             Config.options.background.widgets.calendar.enable = checked
                                         else if (modelData.icon === "public")
