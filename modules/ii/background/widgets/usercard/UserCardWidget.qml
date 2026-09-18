@@ -637,7 +637,7 @@ AbstractBackgroundWidget {
 
                         Image {
                             anchors.fill: parent
-                            source: Config.options.sidebar.bannerImage
+                            source: Config.options.sidebar.bannerImage || Config.options.background.wallpaperPath
                             fillMode: Image.PreserveAspectCrop
                             asynchronous: true
                             cache: false
