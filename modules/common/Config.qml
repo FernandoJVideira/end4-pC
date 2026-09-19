@@ -218,6 +218,7 @@ Singleton {
                 property string style: "default" // default - minimal
                 property real borderSize: 1
                 property string borderColor: "layer0Border"
+                property list<string> collapsedSections: []
             }
 
             property JsonObject background: JsonObject {
