@@ -158,7 +158,7 @@ ContentSubsection {
         }
     }
 
-        Item {
+    Item {
         id: dropdown
         Layout.fillWidth: true
         Layout.topMargin: 5

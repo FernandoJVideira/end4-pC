@@ -365,6 +365,20 @@ Singleton {
                         property real size: 200
                     }
 
+                    property JsonObject sticker: JsonObject {
+                        property bool enable: false
+                        property list<var> items: [] // if someone sees this and wants to add more stickers, make a PR too lazy 
+                        property string placementStrategy: "free"
+                        property real x: 400
+                        property real y: 100
+                        property real z: 0
+                        property string path: ""
+                        property real size: 200
+                        property real rotation: 0
+                        property string outlineColor: "#ffffff" //dont work =(
+                        property real outlineWidth: 8
+                    }
+
                     property JsonObject resources: JsonObject {
                         property bool enable: false
                         property string placementStrategy: "free"
