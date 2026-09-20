@@ -42,8 +42,12 @@ StyledImage {
         id: thumbnailGeneration
         command: {
             const maxSize = Images.thumbnailSizes[root.thumbnailSizeName];
-            return ["bash", "-c", 
-                `[ -f '${FileUtils.trimFileProtocol(root.thumbnailPath)}' ] && exit 0 || { magick '${root.sourcePath}' -resize ${maxSize}x${maxSize} '${FileUtils.trimFileProtocol(root.thumbnailPath)}' && exit 1; }`
+            const thumbPath = FileUtils.trimFileProtocol(root.thumbnailPath);
+            return ["bash", "-c",
+                // Generate to a unique temporary file first, then atomically move it into place.
+                // This avoids concurrent generations of the same thumbnail clobbering each other
+                // and half-written cache files when the popup closes mid-generation.
+                `[ -f '${thumbPath}' ] && exit 0 || { tmp='${thumbPath}.$$.tmp.png'; magick '${root.sourcePath}' -resize ${maxSize}x${maxSize} '${tmp}' && mv '${tmp}' '${thumbPath}' && exit 1; exit 2; }`
             ]
         }
         onExited: (exitCode, exitStatus) => {
