@@ -23,6 +23,7 @@ Singleton {
     property Component geminiApiStrategy: GeminiApiStrategy {}
     property Component openaiApiStrategy: OpenAiApiStrategy {}
     property Component mistralApiStrategy: MistralApiStrategy {}
+    property Component claudeCodeApiStrategy: ClaudeCodeApiStrategy {}
     readonly property string interfaceRole: "interface"
     readonly property string apiKeyEnvVarName: "API_KEY"
 
@@ -233,6 +234,13 @@ Singleton {
             ],
             "search": [],
             "none": [],
+        },
+        "claude-code": {
+            // Claude Code drives its own tools (bash, file edits, search) natively;
+            // nothing here needs to go through this app's function-calling schema.
+            "functions": [],
+            "search": [],
+            "none": [],
         }
     }
     property list<var> availableTools: Object.keys(root.tools[models[currentModelId]?.api_format])
@@ -255,6 +263,16 @@ Singleton {
     // - api_format: The API format of the model. Can be "openai" or "gemini". Default is "openai".
     // - extraParams: Extra parameters to be passed to the model. This is a JSON object.
     property var models: Config.options.policies.ai === 2 ? {} : {
+        "claude-code": aiModelComponent.createObject(this, {
+            "name": "Claude Code",
+            "icon": "anthropic-symbolic",
+            "description": Translation.tr("Online | Runs through the `claude` CLI on this machine\nUses your Claude Pro/Max subscription instead of a metered API key"),
+            "homepage": "https://claude.com/product/claude-code",
+            "endpoint": "claude-code://cli",
+            "model": "claude-code",
+            "requires_key": false,
+            "api_format": "claude-code",
+        }),
         "gemini-2.5-flash": aiModelComponent.createObject(this, {
             "name": "Gemini 2.5 Flash",
             "icon": "google-gemini-symbolic",
@@ -302,6 +320,7 @@ Singleton {
         "openai": openaiApiStrategy.createObject(this),
         "gemini": geminiApiStrategy.createObject(this),
         "mistral": mistralApiStrategy.createObject(this),
+        "claude-code": claudeCodeApiStrategy.createObject(this),
     }
     property ApiStrategy currentApiStrategy: apiStrategies[models[currentModelId]?.api_format || "openai"]
 
