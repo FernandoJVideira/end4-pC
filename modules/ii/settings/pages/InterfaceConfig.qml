@@ -145,7 +145,7 @@ ContentPage {
                         spacing: 8
 
                         MaterialSymbol {
-                            text: "music_note_2"
+                            text: "music_note"
                             iconSize: Appearance.font.pixelSize.huge
                             color: Appearance.colors.colPrimary
                         }
@@ -557,7 +557,7 @@ ContentPage {
                         },
                         {
                             displayName: Translation.tr("Niri Like"),
-                            icon: "mobiledata_arrows",
+                            icon: "swap_horiz",
                             value: "niri"
                         }
                     ]

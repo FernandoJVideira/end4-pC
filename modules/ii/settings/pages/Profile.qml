@@ -714,7 +714,7 @@ ContentPage {
         }
 
         ContentSection {
-            icon: "link_2"
+            icon: "link"
             shape: MaterialShape.Shape.Bun
             title: Translation.tr("Browse Online")
             visible: Config.options.profile.onlinePresets
