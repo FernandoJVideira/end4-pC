@@ -269,7 +269,13 @@ Scope {
                             contentItem: RowLayout {
                                 anchors { fill: parent; leftMargin: 12; rightMargin: 12 }
                                 spacing: 12
-                                MaterialSymbol { text: "video_template"; iconSize: Appearance.font.pixelSize.larger; color: Appearance.colors.colOnLayer1 }
+                                // "video_template" is a valid, current Material Symbols icon name
+                                // (confirmed against assets/material_symbols_rounded.json) but isn't
+                                // in every distro's packaged build of the font yet - e.g. Fedora/Nobara's,
+                                // pulled from a third-party COPR that lags Google's icon releases. It
+                                // renders as literal fallback text there instead of the glyph. Swapped
+                                // for "live_tv", a long-established icon unaffected by that lag.
+                                MaterialSymbol { text: "live_tv"; iconSize: Appearance.font.pixelSize.larger; color: Appearance.colors.colOnLayer1 }
                                 StyledText { Layout.fillWidth: true; text: "Live Wallpaper"; font.pixelSize: Appearance.font.pixelSize.normal; color: Appearance.colors.colOnLayer1 }
                                 MaterialSymbol {
                                     visible: DropShelf.items.length === 0
